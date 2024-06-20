@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Chat with {{ user.username }}</h2>
+
+  <div id="messages">
+    {% for message in messages %}
+      <div>
+        <strong>{{ message.sender.username }}:</strong> {{ message.text }}
+        {% if message.photo %}
+          <img src="{{ message.photo.url }}" alt="Image">
+        {% endif %}
+        {% if message.file %}
+          <a href="{{ message.file.url }}">Download file</a>
+        {% endif %}
+        {% if message.audio %}
+          <audio controls>
+            <source src="{{ message.audio.url }}" type="audio/mpeg">
+            Your browser does not support the audio element.
+          </audio>
+        {% endif %}
+        <small>{{ message.timestamp }}</small>
+      </div>
+    {% endfor %}
+  </div>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Send</button>
+  </form>
+{% endblock %}

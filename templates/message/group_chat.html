@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>Group Chat: {{ group.name }}</h1>
+  <div>
+    {% for message in messages %}
+      <p>{{ message.text }} - {{ message.sender }}</p>
+      {% if message.photo %}
+        <img src="{{ message.photo.url }}" alt="Photo" style="max-width: 100%; height: auto;">
+      {% endif %}
+      {% if message.video %}
+        <video width="320" height="240" controls>
+          <source src="{{ message.video.url }}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      {% endif %}
+      {% if message.audio %}
+        <audio controls>
+          <source src="{{ message.audio.url }}" type="audio/mp3">
+          Your browser does not support the audio tag.
+        </audio>
+      {% endif %}
+    {% endfor %}
+  </div>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div style="display: flex; align-items: center;">
+      {{ form.text }}
+      <button type="submit">Send Message</button>
+    </div>
+    {{ form.photo }}
+    <button type="button" onclick="openCamera()">Open Camera for Photo</button>
+    {{ form.audio }}
+    <button type="button" onclick="startRecording()">Record Audio</button>
+  </form>
+
+  <script>
+    function openCamera() {
+      document.getElementById('id_photo').click();
+    }
+    function startRecording() {
+      document.getElementById('id_audio').click();
+    }
+  </script>
+{% endblock %}

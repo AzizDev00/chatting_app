@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Add User to Group{% endblock %}
+
+{% block content %}
+  <h1>Add User to {{ group.name }}</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Add User</button>
+  </form>
+{% endblock %}

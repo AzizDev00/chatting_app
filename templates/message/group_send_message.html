@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Send Message in {{ group.name }}</title>
+</head>
+<body>
+    <h1>Send a Message in {{ group.name }}</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Send</button>
+    </form>
+    <a href="{% url 'group_chat' group.id %}">Back to Chat</a>
+</body>
+</html>
