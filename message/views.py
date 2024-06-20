@@ -20,7 +20,7 @@ class UserMessageView(LoginRequiredMixin, View):
         messages = Message.objects.filter(
             Q(sender=request.user) & Q(receiver=user) |
             Q(sender=user) & Q(receiver=request.user)
-        ).order_by('-timestamp')
+        ).order_by('timestamp')
 
         form = self.form_class()
         users = User.objects.exclude(id=request.user.id)
@@ -50,7 +50,7 @@ class UserMessageView(LoginRequiredMixin, View):
         messages = Message.objects.filter(
             Q(sender=request.user) & Q(receiver=user) |
             Q(sender=user) & Q(receiver=request.user)
-        ).order_by('-timestamp')
+        ).order_by('timestamp')
 
         users = User.objects.exclude(id=request.user.id)
         groups = Group.objects.filter(users=request.user)
