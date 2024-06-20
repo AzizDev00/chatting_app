@@ -22,6 +22,43 @@
 {% endblock sidebar %}
 
 {% block content %}
+<style>
+    .chat-window {
+        border: 1px solid #ccc;
+        padding: 10px;
+    }
+    .chat-messages {
+        max-height: 400px;
+        overflow-y: auto;
+        margin-bottom: 10px;
+    }
+    .message {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 10px;
+        width: fit-content;
+        max-width: 60%;
+    }
+    .message.sent {
+        background-color: #dcf8c6;
+        margin-left: auto;
+        text-align: right;
+    }
+    .message.received {
+        background-color: #fff;
+        margin-right: auto;
+    }
+    .message-info {
+        font-size: 0.8em;
+        color: #666;
+    }
+    .message-text {
+        margin-top: 5px;
+    }
+    .chat-input {
+        margin-top: 10px;
+    }
+</style>
 <div class="chat-window">
     <div class="chat-header">
         <h2>Chat with {{ user.username }}</h2>

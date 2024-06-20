@@ -16,25 +16,75 @@
         {% for group in groups %}
         <li>
             <a href="{% url 'message:group_chat' group.id %}">{{ group.name }}</a>
+            <h1>Create Your Own Groups</h1>
         </li>
         {% endfor %}
     </ul>
 {% endblock sidebar %}
 
 {% block content %}
+<style>
+    .chat-window {
+        border: 1px solid #ccc;
+        padding: 10px;
+    }
+    .chat-messages {
+        max-height: 400px;
+        overflow-y: auto;
+        margin-bottom: 10px;
+    }
+    .message {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 10px;
+        width: fit-content;
+        max-width: 60%;
+    }
+    .message.sent {
+        background-color: #dcf8c6;
+        margin-left: auto;
+        text-align: right;
+    }
+    .message.received {
+        background-color: #fff;
+        margin-right: auto;
+    }
+    .message-info {
+        font-size: 0.8em;
+        color: #666;
+    }
+    .message-text {
+        margin-top: 5px;
+    }
+    .chat-input {
+        margin-top: 10px;
+    }
+</style>
 <div class="chat-window">
     <div class="chat-header">
         <h2>{{ group.name }}</h2>
     </div>
     <div class="chat-messages">
         {% for message in messages %}
-        <div class="message {% if message.sender == user %}sent{% else %}received{% endif %}">
+        <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}">
             <div class="message-info">
                 <span class="sender">{{ message.sender.username }}</span>
                 <span class="timestamp">{{ message.timestamp|date:"H:i" }}</span>
             </div>
             <div class="message-text">
                 {{ message.text }}
+                {% if message.photo %}
+                <img src="{{ message.photo.url }}" alt="Image" style="max-width: 100px; max-height: 100px;">
+                {% endif %}
+                {% if message.file %}
+                <a href="{{ message.file.url }}">Download file</a>
+                {% endif %}
+                {% if message.audio %}
+                <audio controls>
+                    <source src="{{ message.audio.url }}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+                {% endif %}
             </div>
         </div>
         {% endfor %}
