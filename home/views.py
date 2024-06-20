@@ -1,4 +1,3 @@
-# home/views.py
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from message.models import Group 

@@ -4,101 +4,101 @@
     <meta charset="UTF-8">
     <title>{% block title %}My Website{% endblock %}</title>
     <style>
-       body {
+        body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
+            height: 100vh;
             flex-direction: column;
-            min-height: 100vh;
         }
+
         nav {
-            background-color: #ff0000; /* Red */
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
+            background-color: #333;
+            color: white;
+            padding: 10px;
         }
+
         nav a {
-            color: #fff;
-            text-decoration: none;
+            color: white;
             margin: 0 10px;
+            text-decoration: none;
         }
+
         nav a:hover {
             text-decoration: underline;
         }
+
         .container {
-            padding: 20px;
-            margin: 20px auto;
-            background-color: #ffffff;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            flex: 1;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            font-weight: bold;
-        }
-        input[type="text"],
-        input[type="password"],
-        textarea {
+            display: flex;
             width: 100%;
+            height: 100%;
+        }
+
+        .sidebar {
+            width: 25%;
+            background-color: #f1f1f1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .main-content {
+            width: 75%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-window {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #ddd;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .chat-header, .chat-input {
             padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #00ff00; /* Green */
+            border-bottom: 1px solid #ddd;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin-bottom: 15px;
+        }
+
+        .message-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .message-text {
+            padding: 10px;
             border-radius: 5px;
-            box-sizing: border-box;
+            background-color: #f1f1f1;
         }
-        input[type="submit"],
-        button {
-            background-color: #ff0000; /* Red */
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
+
+        .message.sent .message-text {
+            background-color: #d1ffd1;
+            align-self: flex-end;
         }
-        input[type="submit"]:hover,
-        button:hover {
-            background-color: #cc0000; /* Darker Red */
+
+        .message.received .message-text {
+            background-color: #f1f1f1;
+            align-self: flex-start;
         }
-        .error-message {
-            color: red;
-            margin-top: 5px;
-        }
-        .success-message {
-            color: green;
-            margin-top: 5px;
-        }
+
         footer {
-            background-color: #ff0000; /* Red */
-            color: #fff;
-            padding: 20px 0;
+            background-color: #333;
+            color: white;
             text-align: center;
-        }
-        footer a {
-            color: #fff;
-            text-decoration: none;
-            margin: 0 10px;
-        }
-        footer a:hover {
-            text-decoration: underline;
-        }
-        footer .social-icons a {
-            display: inline-block;
-            margin: 0 10px;
-        }
-        footer .social-icons img {
-            width: 24px;
-            height: 24px;
-        }
-        .social-icons {
-            margin: 10px;
-        }
-        .developers {
-            margin-top: 20px;
-            color: #fff;
+            padding: 10px 0;
         }
     </style>
 </head>
@@ -114,34 +114,31 @@
         {% endif %}
     </nav>
     <div class="container">
-        {% block content %}
-        {% endblock content %}
+        <div class="sidebar">
+            <h2>Users</h2>
+            <ul>
+                {% for user in users %}
+                <li>
+                    <a href="{% url 'message:user_message_view' user.id %}">{{ user.username }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+            <h2>Groups</h2>
+            <ul>
+                {% for group in groups %}
+                <li>
+                    <a href="{% url 'message:group_chat' group.id %}">{{ group.name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="main-content">
+            {% block content %}
+            {% endblock content %}
+        </div>
     </div>
     <footer>
         <p>&copy; 2024 Chatting Website. All rights reserved.</p>
-        <div class="social-icons">
-            <a href="https://t.me/Azizbek2308" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram">
-            </a>
-            <a href="https://www.twitter.com" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg" alt="Twitter">
-            </a>
-            <a href="https://www.instagram.com/azizzz2511/" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram">
-            </a>
-            <a href="https://github.com/AzizDev00" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="Github">
-            </a>
-        </div>
-        <div>
-            <a href="#footer">Privacy Policy</a> |
-            <a href="#footer">Terms of Service</a> |
-            <a href="https://t.me/Azizbek2308" target="_blank">Contact Us</a>
-        </div>
-        <div class="developers">
-            Developer: Sharafutdinov Azizbek
-        </div>
     </footer>
-    
 </body>
 </html>

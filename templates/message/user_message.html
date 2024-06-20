@@ -1,32 +1,62 @@
 {% extends "base.html" %}
 
+{% block title %}Chat with {{ user.username }}{% endblock %}
+
+{% block sidebar %}
+    <h2>Users</h2>
+    <ul>
+        {% for user in users %}
+        <li>
+            <a href="{% url 'message:user_message_view' user.id %}">{{ user.username }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+    <h2>Groups</h2>
+    <ul>
+        {% for group in groups %}
+        <li>
+            <a href="{% url 'message:group_chat' group.id %}">{{ group.name }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+{% endblock sidebar %}
+
 {% block content %}
-  <h2>Chat with {{ user.username }}</h2>
-
-  <div id="messages">
-    {% for message in messages %}
-      <div>
-        <strong>{{ message.sender.username }}:</strong> {{ message.text }}
-        {% if message.photo %}
-          <img src="{{ message.photo.url }}" alt="Image">
-        {% endif %}
-        {% if message.file %}
-          <a href="{{ message.file.url }}">Download file</a>
-        {% endif %}
-        {% if message.audio %}
-          <audio controls>
-            <source src="{{ message.audio.url }}" type="audio/mpeg">
-            Your browser does not support the audio element.
-          </audio>
-        {% endif %}
-        <small>{{ message.timestamp }}</small>
-      </div>
-    {% endfor %}
-  </div>
-
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Send</button>
-  </form>
-{% endblock %}
+<div class="chat-window">
+    <div class="chat-header">
+        <h2>Chat with {{ user.username }}</h2>
+    </div>
+    <div class="chat-messages">
+        {% for message in messages %}
+        <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}">
+            <div class="message-info">
+                <span class="sender">{{ message.sender.username }}</span>
+                <span class="timestamp">{{ message.timestamp|date:"H:i" }}</span>
+            </div>
+            <div class="message-text">
+                {{ message.text }}
+                {% if message.photo %}
+                    <img src="{{ message.photo.url }}" alt="Image" style="max-width: 100px; max-height: 100px;">
+                {% endif %}
+                {% if message.file %}
+                    <a href="{{ message.file.url }}">Download file</a>
+                {% endif %}
+                {% if message.audio %}
+                    <audio controls>
+                        <source src="{{ message.audio.url }}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="chat-input">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Send</button>
+        </form>
+    </div>
+</div>
+{% endblock content %}

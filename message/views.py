@@ -23,11 +23,15 @@ class UserMessageView(LoginRequiredMixin, View):
         ).order_by('-timestamp')
 
         form = self.form_class()
+        users = User.objects.exclude(id=request.user.id)
+        groups = Group.objects.filter(users=request.user)
 
         return render(request, self.template_name, {
             'user': user,
             'messages': messages,
             'form': form,
+            'users': users,
+            'groups': groups,
         })
 
     def post(self, request, user_id):
@@ -48,10 +52,15 @@ class UserMessageView(LoginRequiredMixin, View):
             Q(sender=user) & Q(receiver=request.user)
         ).order_by('-timestamp')
 
+        users = User.objects.exclude(id=request.user.id)
+        groups = Group.objects.filter(users=request.user)
+
         return render(request, self.template_name, {
             'user': user,
             'messages': messages,
             'form': form,
+            'users': users,
+            'groups': groups,
         })
 
 class GroupCreateView(LoginRequiredMixin, View):
@@ -60,7 +69,13 @@ class GroupCreateView(LoginRequiredMixin, View):
 
     def get(self, request):
         form = self.form_class()
-        return render(request, self.template_name, {'form': form})
+        users = User.objects.exclude(id=request.user.id)
+        groups = Group.objects.filter(users=request.user)
+        return render(request, self.template_name, {
+            'form': form,
+            'users': users,
+            'groups': groups,
+        })
 
     def post(self, request):
         form = self.form_class(request.POST)
@@ -72,7 +87,16 @@ class GroupCreateView(LoginRequiredMixin, View):
             group.admins.add(request.user)
             group.save()
             return redirect('message:group_detail', pk=group.pk)
-        return render(request, self.template_name, {'form': form})
+
+        users = User.objects.exclude(id=request.user.id)
+        groups = Group.objects.filter(users=request.user)
+        
+        return render(request, self.template_name, {
+            'form': form,
+            'users': users,
+            'groups': groups,
+        })
+
 
 class AddUserToGroupView(LoginRequiredMixin, View):
     template_name = 'message/add_user_to_group.html'
@@ -116,6 +140,8 @@ class GroupChatView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['messages'] = self.get_object().messages.all().order_by('-timestamp')
         context['form'] = MessageForm()
+        context['users'] = User.objects.exclude(id=self.request.user.id)
+        context['groups'] = Group.objects.filter(users=self.request.user)
         return context
     
     def post(self, request, *args, **kwargs):
@@ -130,10 +156,15 @@ class GroupChatView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
             group.last_message = message
             group.save()
             form = MessageForm()
+        
+        users = User.objects.exclude(id=request.user.id)
+        groups = Group.objects.filter(users=request.user)
+
         context = {
             'group': group,
             'messages': group.messages.all().order_by('-timestamp'),
             'form': form,
+            'users': users,
+            'groups': groups,
         }
         return render(request, self.template_name, context)
-        
