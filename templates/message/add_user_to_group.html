@@ -2,11 +2,91 @@
 
 {% block title %}Add User to Group{% endblock %}
 
+{% block sidebar %}
+<h2>Users</h2>
+<ul>
+    {% for user in users %}
+    <li>
+        <a href="{% url 'message:user_message_view' user.id %}">{{ user.username }}</a>
+    </li>
+    {% endfor %}
+</ul>
+<h2>Groups</h2>
+<ul>
+    {% for group in groups %}
+    <li>
+        <a href="{% url 'message:group_chat' group.id %}">{{ group.name }}</a>
+        <a href="{% url 'message:group_detail' group.id %}">
+            <button>Detail</button>
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
+
 {% block content %}
-  <h1>Add User to {{ group.name }}</h1>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Add User</button>
-  </form>
+  <div class="add-user-container">
+    <h1>Add User to {{ group.name }}</h1>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Add User</button>
+    </form>
+  </div>
+
+  <style>
+    .add-user-container {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        max-width: 600px;
+        margin: 20px auto;
+    }
+
+    .add-user-container h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .add-user-container form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .add-user-container label {
+        font-weight: bold;
+        margin-top: 10px;
+        margin-bottom: 5px;
+    }
+
+    .add-user-container select,
+    .add-user-container input[type="text"],
+    .add-user-container input[type="email"],
+    .add-user-container textarea {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 20px;
+    }
+
+    .add-user-container button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        cursor: pointer;
+        border-radius: 5px;
+        margin-top: 10px;
+        align-self: flex-start;
+    }
+
+    .add-user-container button:hover {
+        background-color: #45a049;
+    }
+  </style>
 {% endblock %}

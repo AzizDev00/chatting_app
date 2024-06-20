@@ -16,6 +16,9 @@
         {% for group in groups %}
         <li>
             <a href="{% url 'message:group_chat' group.id %}">{{ group.name }}</a>
+            <a href="{% url 'message:group_detail' group.id %}">
+                <button>Detail</button>
+            </a>
         </li>
         {% endfor %}
     </ul>
@@ -23,5 +26,6 @@
 
 {% block content %}
     <h2>Welcome to the Chat App</h2>
-    <p>Select a user or group to start chatting.</p>
+    <p style="padding-bottom: 12%;"> Select a user or group to start chatting.</p>
+
 {% endblock content %}

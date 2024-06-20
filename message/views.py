@@ -15,7 +15,7 @@ class UserMessageView(LoginRequiredMixin, View):
     def get(self, request, user_id):
         user = get_object_or_404(User, id=user_id)
         if request.user == user:
-            return redirect('home:home-page')  # Redirect to home or another appropriate view
+            return redirect('home:home-page') 
 
         messages = Message.objects.filter(
             Q(sender=request.user) & Q(receiver=user) |
@@ -37,7 +37,7 @@ class UserMessageView(LoginRequiredMixin, View):
     def post(self, request, user_id):
         user = get_object_or_404(User, id=user_id)
         if request.user == user:
-            return redirect('home:home-page')  # Redirect to home or another appropriate view
+            return redirect('home:home-page') 
 
         form = self.form_class(request.POST, request.FILES)
         if form.is_valid():
@@ -102,27 +102,56 @@ class AddUserToGroupView(LoginRequiredMixin, View):
     template_name = 'message/add_user_to_group.html'
     form_class = AddUserToGroupForm
 
-    def get(self, request, group_id):
-        group = get_object_or_404(Group, id=group_id)
-        form = self.form_class()
-        return render(request, self.template_name, {'form': form, 'group': group})
+    def get_context_data(self, request, **kwargs):
+        context = kwargs
+        # Exclude the current user from the users list
+        context['users'] = User.objects.exclude(id=request.user.id)
+        # Filter groups where the current user is a member
+        context['groups'] = Group.objects.filter(users=request.user)
+        return context
 
-    def post(self, request, group_id):
-        group = get_object_or_404(Group, id=group_id)
+    def get(self, request, pk):
+        group = get_object_or_404(Group, id=pk)
+
+        if request.user not in group.admins.all():
+            return HttpResponseForbidden('You are not allowed to add users to this group')
+        
+        form = self.form_class()
+        context = self.get_context_data(request, form=form, group=group)
+        return render(request, self.template_name, context)
+
+    def post(self, request, pk):
+        group = get_object_or_404(Group, id=pk)
+
+        if request.user not in group.admins.all():
+            return HttpResponseForbidden('You are not allowed to add users to this group')
+        
         form = self.form_class(request.POST)
         if form.is_valid():
             user = form.cleaned_data['user']
             group.users.add(user)
             group.save()
             return redirect('message:group_detail', pk=group.pk)
-        return render(request, self.template_name, {'form': form, 'group': group})
+        
+        context = self.get_context_data(request, form=form, group=group)
+        return render(request, self.template_name, context)
 
-class GroupDetailView(LoginRequiredMixin, View):
-    template_name = 'message/group_detail.html'
+def group_detail(request, pk):
+    group = get_object_or_404(Group, id=pk)
+    
+    if request.user not in group.users.all():
+        return HttpResponseForbidden('You are not a member of this group')
+    
+    users = User.objects.exclude(id=request.user.id) 
+    groups = Group.objects.filter(users=request.user)
+    
+    context = {
+        'group': group,
+        'users': users,
+        'groups': groups,
+    }
+    return render(request, 'message/group_detail.html', context)
 
-    def get(self, request, pk):
-        group = get_object_or_404(Group, pk=pk)
-        return render(request, self.template_name, {'group': group})
 
 class GroupChatView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Group
