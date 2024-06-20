@@ -21,11 +21,11 @@
       {% endif %}
     {% endfor %}
   </div>
-  <form method="post" enctype="multipart/form-data">
+  <form method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 10px;">
     {% csrf_token %}
     <div style="display: flex; align-items: center;">
       {{ form.text }}
-      <button type="submit">Send Message</button>
+      <button type="submit" style="padding: 10px 15px; margin-top: 3px;">Send</button>
     </div>
     {{ form.photo }}
     <button type="button" onclick="openCamera()">Open Camera for Photo</button>
