@@ -3,6 +3,12 @@
 {% block title %}Home Page{% endblock %}
 
 {% block sidebar %}
+<div class="search-container">
+    <form method="get" action="{% url 'message:search' %}">
+        <input style="max-width: 60%; margin-left: -2%; margin-right: -5%;" type="text" name="q" placeholder="Search users or groups..." value="{{ request.GET.q|default_if_none:'' }}">
+        <button style="padding: 10.4px; border-radius: 4px;" type="submit">Search</button>
+    </form>
+</div>
     <h2>Users</h2>
     <ul>
         {% for user in users %}

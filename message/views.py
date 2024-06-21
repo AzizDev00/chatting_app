@@ -72,6 +72,7 @@ class UserMessageView(LoginRequiredMixin, View):
         })
 
 
+
 class GroupCreateView(LoginRequiredMixin, View):
     template_name = 'message/group_create.html'
     form_class = GroupCreateForm
