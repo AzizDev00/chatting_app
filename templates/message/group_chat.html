@@ -1,8 +1,5 @@
 {% extends "base.html" %}
-
 {% block title %}Chat in {{ group.name }}{% endblock %}
-
-
 {% block sidebar %}
 <h2>Users</h2>
 <ul>
@@ -17,20 +14,67 @@
     {% for group in groups %}
     <li>
         <a href="{% url 'message:group_chat' group.id %}">{{ group.name }}</a>
-        <a href="{% url 'message:group_detail' group.id %}">
-            <button>Detail</button>
-        </a>
     </li>
     {% endfor %}
 </ul>
 {% endblock sidebar %}
-
-<form method="GET" action="{% url 'message:group_chat' group.id %}">
-    <input type="text" name="q" placeholder="Search messages..." value="{{ search_query|default:'' }}">
-    <button type="submit">Search</button>
-</form>
-
 {% block content %}
+<div class="chat-window">
+    <div class="chat-header">
+        <h2>{{ group.name }}</h2>
+    </div>
+    <form method="GET" action="{% url 'message:group_chat' group.id %}">
+        <input type="text" name="q" placeholder="Search messages..." value="{{ search_query|default:'' }}">
+        <button type="submit">Search</button>
+    </form>
+    <div class="chat-messages">
+        {% for message in messages %}
+        <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}" data-message-id="{{ message.id }}">
+            {% if message.sender == request.user %}
+            <div class="edit-delete-buttons">
+                <button onclick="editMessage('{{ message.id }}', '{{ message.text }}')"><i class="fas fa-pen"></i></button>
+                <button onclick="deleteMessage('{{ message.id }}')"><i class="fas fa-trash"></i></button>
+            </div>
+            {% endif %}
+            <div class="message-info">
+                <span class="sender">{{ message.sender.username }}</span>
+                <span class="timestamp">{{ message.timestamp|date:"H:i" }}</span>
+            </div>
+            <div class="message-text" id="message-text-{{ message.id }}">
+                {{ message.text }}
+                {% if message.photo %}
+                <img src="{{ message.photo.url }}" alt="Image" style="max-width: 100px; max-height: 100px;">
+                {% endif %}
+                {% if message.file %}
+                <a href="{{ message.file.url }}">Download file</a>
+                {% endif %}
+                {% if message.audio %}
+                <audio controls>
+                    <source src="{{ message.audio.url }}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="chat-input">
+        <form method="post" enctype="multipart/form-data" style="display: flex; flex: 1; position: relative;">
+            {% csrf_token %}
+            <div class="file-buttons">
+                <button type="button" onclick="toggleFileOptions()">+</button>
+                <div class="file-options" id="fileOptions">
+                    Photo: <input type="file" name="photo" id="id_photo"><br>
+                    Audio: <input type="file" name="audio" id="id_audio"><br>
+                    File: <input type="file" name="file" id="id_file">
+                </div>
+            </div>
+            <input type="text" name="text" placeholder="Type your message..." required>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+</div>
+
 <style>
     .chat-window {
         border: 1px solid #ccc;
@@ -104,8 +148,8 @@
         border: 1px solid #ccc;
         padding: 10px;
         border-radius: 5px;
-        bottom: 100%; /* Position above the button */
-        margin-bottom: 10px; /* Space between button and options */
+        bottom: 100%;
+        margin-bottom: 10px;
     }
     .file-options input {
         margin-bottom: 5px;
@@ -153,10 +197,10 @@
         color: #dc3545;
     }
     .edit-message-input {
-        width: calc(100% - 40px); /* Adjust width to accommodate button */
+        width: calc(100% - 40px);
         padding: 10px;
         border: 1px solid #ccc;
-        border-radius: 5px 0 0 5px; /* Rounded corners, only left */
+        border-radius: 5px 0 0 5px;
         margin-top: 10px;
         max-height: 15px;
     }
@@ -168,7 +212,7 @@
         margin-top: 10px;
         border: 1px solid #ccc;
         border-left: none;
-        border-radius: 0 5px 5px 0; /* Rounded corners, only right */
+        border-radius: 0 5px 5px 0;
         background-color: #007bff;
         color: white;
         cursor: pointer;
@@ -180,58 +224,6 @@
 
 <!-- Font Awesome CDN for icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-<div class="chat-window">
-    <div class="chat-header">
-        <h2>{{ group.name }}</h2>
-    </div>
-    <div class="chat-messages">
-        {% for message in messages %}
-        <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}" data-message-id="{{ message.id }}">
-            {% if message.sender == request.user %}
-            <div class="edit-delete-buttons">
-                <button onclick="editMessage('{{ message.id }}', '{{ message.text }}')"><i class="fas fa-pen"></i></button>
-                <button onclick="deleteMessage('{{ message.id }}')"><i class="fas fa-trash"></i></button>
-            </div>
-            {% endif %}
-            <div class="message-info">
-                <span class="sender">{{ message.sender.username }}</span>
-                <span class="timestamp">{{ message.timestamp|date:"H:i" }}</span>
-            </div>
-            <div class="message-text" id="message-text-{{ message.id }}">
-                {{ message.text }}
-                {% if message.photo %}
-                <img src="{{ message.photo.url }}" alt="Image" style="max-width: 100px; max-height: 100px;">
-                {% endif %}
-                {% if message.file %}
-                <a href="{{ message.file.url }}">Download file</a>
-                {% endif %}
-                {% if message.audio %}
-                <audio controls>
-                    <source src="{{ message.audio.url }}" type="audio/mpeg">
-                    Your browser does not support the audio element.
-                </audio>
-                {% endif %}
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    <div class="chat-input">
-        <form method="post" enctype="multipart/form-data" style="display: flex; flex: 1; position: relative;">
-            {% csrf_token %}
-            <div class="file-buttons">
-                <button type="button" onclick="toggleFileOptions()">+</button>
-                <div class="file-options" id="fileOptions">
-                    Photo: <input type="file" name="photo" id="id_photo"><br>
-                    Audio: <input type="file" name="audio" id="id_audio"><br>
-                    File: <input type="file" name="file" id="id_file">
-                </div>
-            </div>
-            <input type="text" name="text" placeholder="Type your message..." required>
-            <button type="submit">Send</button>
-        </form>
-    </div>
-</div>
 
 <script>
     function toggleFileOptions() {

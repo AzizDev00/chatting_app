@@ -141,29 +141,36 @@
             text-align: center;
             padding: 10px 0;
         }
+
         footer .social-icons a {
             display: inline-block;
             margin: 0 10px;
         }
+
         footer .social-icons img {
             width: 24px;
             height: 24px;
         }
+
         .social-icons {
             margin: 10px;
         }
+
         .developers {
             margin-top: 20px;
             color: #fff;
         }
+
         footer a {
             color: #fff;
             text-decoration: none;
             margin: 0 10px;
         }
+
         footer a:hover {
             text-decoration: underline;
         }
+
         footer .social-icons a {
             display: inline-block;
             margin: 0 10px;
@@ -205,6 +212,7 @@
             <div class="search-container">
                 <form method="get" action="{% url 'message:search' %}">
                     <input type="text" name="q" placeholder="Search users or groups..." value="{{ request.GET.q|default_if_none:'' }}">
+                    <button type="submit">Search</button>
                 </form>
             </div>
             <h2>Users</h2>

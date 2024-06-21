@@ -17,10 +17,13 @@ class UserMessageView(LoginRequiredMixin, View):
         if request.user == user:
             return redirect('home:home-page') 
 
+        query = request.GET.get('q')
         messages = Message.objects.filter(
-            Q(sender=request.user) & Q(receiver=user) |
-            Q(sender=user) & Q(receiver=request.user)
+            Q(sender=request.user, receiver=user) |
+            Q(sender=user, receiver=request.user)
         ).order_by('timestamp')
+        if query:
+            messages = messages.filter(text__icontains=query)
 
         form = self.form_class()
         users = User.objects.exclude(id=request.user.id)
@@ -32,6 +35,7 @@ class UserMessageView(LoginRequiredMixin, View):
             'form': form,
             'users': users,
             'groups': groups,
+            'search_query': query
         })
 
     def post(self, request, user_id):
@@ -47,10 +51,13 @@ class UserMessageView(LoginRequiredMixin, View):
             message.save()
             return redirect('message:user_message_view', user_id=user.id)
 
+        query = request.GET.get('q')
         messages = Message.objects.filter(
-            Q(sender=request.user) & Q(receiver=user) |
-            Q(sender=user) & Q(receiver=request.user)
+            Q(sender=request.user, receiver=user) |
+            Q(sender=user, receiver=request.user)
         ).order_by('timestamp')
+        if query:
+            messages = messages.filter(text__icontains=query)
 
         users = User.objects.exclude(id=request.user.id)
         groups = Group.objects.filter(users=request.user)
@@ -61,6 +68,7 @@ class UserMessageView(LoginRequiredMixin, View):
             'form': form,
             'users': users,
             'groups': groups,
+            'search_query': query
         })
 
 
@@ -166,7 +174,7 @@ def group_chat(request, group_id):
     users = User.objects.all()
     groups = Group.objects.all()
 
-    return render(request, 'group_chat.html', {
+    return render(request, 'message/group_chat.html', {
         'group': group,
         'messages': messages,
         'users': users,
@@ -186,7 +194,7 @@ def user_message_view(request, user_id):
     users = User.objects.all()
     groups = Group.objects.all()
 
-    return render(request, 'user_message.html', {
+    return render(request, 'message/user_message.html', {
         'user': user,
         'messages': messages,
         'users': users,
@@ -209,10 +217,19 @@ class GroupChatView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['messages'] = self.get_object().messages.all().order_by('-timestamp')
-        context['form'] = MessageForm()
-        context['users'] = User.objects.exclude(id=self.request.user.id)
-        context['groups'] = Group.objects.filter(users=self.request.user)
+        group = self.get_object()
+        query = self.request.GET.get('q')
+        messages = group.messages.all().order_by('-timestamp')
+        if query:
+            messages = messages.filter(text__icontains=query)
+
+        context.update({
+            'messages': messages,
+            'form': MessageForm(),
+            'users': User.objects.exclude(id=self.request.user.id),
+            'groups': Group.objects.filter(users=self.request.user),
+            'search_query': query,
+        })
         return context
     
     def post(self, request, *args, **kwargs):
@@ -221,25 +238,27 @@ class GroupChatView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         if form.is_valid():
             message = form.save(commit=False)
             message.sender = request.user
-            message.receiver = group.users.first() 
+            message.receiver = group.users.first()
             message.save()
             group.messages.add(message)
             group.last_message = message
             group.save()
             form = MessageForm()
-        
-        users = User.objects.exclude(id=request.user.id)
-        groups = Group.objects.filter(users=request.user)
+
+        query = request.GET.get('q')
+        messages = group.messages.all().order_by('-timestamp')
+        if query:
+            messages = messages.filter(text__icontains=query)
 
         context = {
             'group': group,
-            'messages': group.messages.all().order_by('-timestamp'),
+            'messages': messages,
             'form': form,
-            'users': users,
-            'groups': groups,
+            'users': User.objects.exclude(id=request.user.id),
+            'groups': Group.objects.filter(users=request.user),
+            'search_query': query
         }
         return render(request, self.template_name, context)
-
 
 class EditMessageView(LoginRequiredMixin, View):
     def post(self, request, message_id):
