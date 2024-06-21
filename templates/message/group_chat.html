@@ -20,6 +20,9 @@
     {% for group in groups %}
     <li>
         <a href="{% url 'message:group_chat' group.id %}">{{ group.name }}</a>
+        <a href="{% url 'message:group_detail' group.id %}">
+            <button>Detail</button>
+        </a>
     </li>
     {% endfor %}
 </ul>
