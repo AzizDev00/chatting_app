@@ -4,19 +4,19 @@ This is a simple real-time chatting application built with Django and Django Cha
 
 ## Features
 
-- Real-time messaging with Django Channels
+- Private Chatting
 - Create and manage chat groups
 - Add and manage group members
 - User authentication
 - User-friendly interface
+- Wonderful Design
 
 ## Requirements
 
 - Python 3.x
 - Django
-- Django Channels
-- Channels Redis
-- Redis
+- Pillow
+
 
 ## Installation
 
