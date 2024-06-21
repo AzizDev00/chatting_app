@@ -51,7 +51,7 @@ class ProfileUpdateView(View):
         update_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
         if update_form.is_valid():
             update_form.save()
-            return redirect('users:profile')
+            return redirect('accounts:profile')
         else:
             return render(request, 'profile/profile_update.html', {'form':update_form})
         

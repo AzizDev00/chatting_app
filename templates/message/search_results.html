@@ -3,6 +3,71 @@
 {% block title %}Search Results{% endblock %}
 
 {% block content %}
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+
+    .search-results {
+        width: 80%;
+        max-width: 800px;
+        margin: 50px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2, h3 {
+        color: #333;
+        text-align: center;
+    }
+
+    h2 {
+        margin-bottom: 20px;
+    }
+
+    h3 {
+        margin-top: 30px;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    li {
+        font-size: 1.2em;
+        color: #666;
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    li:last-child {
+        border-bottom: none;
+    }
+
+    a {
+        text-decoration: none;
+        color: #007BFF;
+        transition: color 0.3s;
+    }
+
+    a:hover {
+        color: #0056b3;
+    }
+
+    .no-results {
+        text-align: center;
+        color: #999;
+        font-size: 1.2em;
+    }
+</style>
+
 <div class="search-results">
     <h2>Search Results for "{{ query }}"</h2>
 

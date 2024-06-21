@@ -21,7 +21,7 @@ class UserMessageView(LoginRequiredMixin, View):
         messages = Message.objects.filter(
             Q(sender=request.user, receiver=user) |
             Q(sender=user, receiver=request.user)
-        ).order_by('timestamp')
+        ).order_by('-timestamp')
         if query:
             messages = messages.filter(text__icontains=query)
 
@@ -55,7 +55,7 @@ class UserMessageView(LoginRequiredMixin, View):
         messages = Message.objects.filter(
             Q(sender=request.user, receiver=user) |
             Q(sender=user, receiver=request.user)
-        ).order_by('timestamp')
+        ).order_by('-timestamp')
         if query:
             messages = messages.filter(text__icontains=query)
 
@@ -70,7 +70,6 @@ class UserMessageView(LoginRequiredMixin, View):
             'groups': groups,
             'search_query': query
         })
-
 
 
 class GroupCreateView(LoginRequiredMixin, View):
