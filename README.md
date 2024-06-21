@@ -1,3 +1,6 @@
+## Contacts
+**Telegram**: https://t.me/Azizbek2308
+
 # Chatting App
 
 This is a simple real-time chatting application built with Django and Django Channels. It allows users to create groups, add members, and communicate in real-time.
