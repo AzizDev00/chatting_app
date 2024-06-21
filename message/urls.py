@@ -1,6 +1,8 @@
 from django.urls import path
-from .views import UserMessageView, GroupChatView, GroupCreateView, AddUserToGroupView, group_detail
-
+from .views import (
+    UserMessageView, GroupCreateView, AddUserToGroupView,
+    group_detail, GroupChatView, EditMessageView, DeleteMessageView, SearchView
+)
 app_name = 'message'
 
 urlpatterns = [
@@ -9,4 +11,8 @@ urlpatterns = [
     path('create_group/', GroupCreateView.as_view(), name='group_create'),
     path('group/<int:pk>/add_user/', AddUserToGroupView.as_view(), name='add_user_to_group'),
     path('group/<int:pk>/detail/', group_detail, name='group_detail'),
+    path('message/edit/<int:message_id>/', EditMessageView.as_view(), name='edit_message'),
+    path('message/delete/<int:message_id>/', DeleteMessageView.as_view(), name='delete_message'),
+    path('search/', SearchView.as_view(), name='search'),
+
 ]

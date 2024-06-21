@@ -1,12 +1,12 @@
 from django.shortcuts import get_object_or_404, redirect, render
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import DetailView, FormView
 from .models import Message, Group, User
 from .forms import MessageForm, AddUserToGroupForm, GroupCreateForm
 from django.views import View
 from django.db.models import Q
-
+from django.contrib.auth.decorators import login_required
 
 class UserMessageView(LoginRequiredMixin, View):
     template_name = 'message/user_message.html'
@@ -62,6 +62,7 @@ class UserMessageView(LoginRequiredMixin, View):
             'users': users,
             'groups': groups,
         })
+
 
 class GroupCreateView(LoginRequiredMixin, View):
     template_name = 'message/group_create.html'
@@ -136,6 +137,7 @@ class AddUserToGroupView(LoginRequiredMixin, View):
         context = self.get_context_data(request, form=form, group=group)
         return render(request, self.template_name, context)
 
+
 def group_detail(request, pk):
     group = get_object_or_404(Group, id=pk)
     
@@ -151,6 +153,46 @@ def group_detail(request, pk):
         'groups': groups,
     }
     return render(request, 'message/group_detail.html', context)
+
+@login_required
+def group_chat(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+    messages = group.message_set.all()
+
+    query = request.GET.get('q')
+    if query:
+        messages = messages.filter(text__icontains=query)
+
+    users = User.objects.all()
+    groups = Group.objects.all()
+
+    return render(request, 'group_chat.html', {
+        'group': group,
+        'messages': messages,
+        'users': users,
+        'groups': groups,
+        'search_query': query
+    })
+
+@login_required
+def user_message_view(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    messages = Message.objects.filter(sender=user) | Message.objects.filter(receiver=user)
+
+    query = request.GET.get('q')
+    if query:
+        messages = messages.filter(text__icontains=query)
+
+    users = User.objects.all()
+    groups = Group.objects.all()
+
+    return render(request, 'user_message.html', {
+        'user': user,
+        'messages': messages,
+        'users': users,
+        'groups': groups,
+        'search_query': query
+    })
 
 
 class GroupChatView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
@@ -193,6 +235,40 @@ class GroupChatView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
             'group': group,
             'messages': group.messages.all().order_by('-timestamp'),
             'form': form,
+            'users': users,
+            'groups': groups,
+        }
+        return render(request, self.template_name, context)
+
+
+class EditMessageView(LoginRequiredMixin, View):
+    def post(self, request, message_id):
+        message = get_object_or_404(Message, id=message_id, sender=request.user)
+        text = request.POST.get('text')
+        if text:
+            message.text = text
+            message.save()
+            return JsonResponse({'success': True, 'new_text': message.text})
+        return JsonResponse({'success': False})
+
+
+class DeleteMessageView(LoginRequiredMixin, View):
+    def post(self, request, message_id):
+        message = get_object_or_404(Message, id=message_id, sender=request.user)
+        message.delete()
+        return JsonResponse({'success': True})
+
+
+class SearchView(LoginRequiredMixin, View):
+    template_name = 'message/search_results.html'
+
+    def get(self, request):
+        query = request.GET.get('q', '')
+        users = User.objects.filter(username__icontains=query).exclude(id=request.user.id)
+        groups = Group.objects.filter(name__icontains=query, users=request.user)
+
+        context = {
+            'query': query,
             'users': users,
             'groups': groups,
         }

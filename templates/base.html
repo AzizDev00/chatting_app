@@ -168,6 +168,23 @@
             display: inline-block;
             margin: 0 10px;
         }
+        
+        /* Search input styles */
+        .search-container {
+            margin-bottom: 20px;
+        }
+
+        .search-container input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .search-container input[type="text"]:focus {
+            border-color: #007bff;
+            outline: none;
+        }
     </style>
 </head>
 <body>
@@ -185,6 +202,11 @@
     <div class="container">
         <div class="sidebar">
             {% block sidebar %}
+            <div class="search-container">
+                <form method="get" action="{% url 'message:search' %}">
+                    <input type="text" name="q" placeholder="Search users or groups..." value="{{ request.GET.q|default_if_none:'' }}">
+                </form>
+            </div>
             <h2>Users</h2>
             <ul>
                 {% for user in users %}
