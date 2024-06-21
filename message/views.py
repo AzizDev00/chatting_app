@@ -15,13 +15,14 @@ class UserMessageView(LoginRequiredMixin, View):
     def get(self, request, user_id):
         user = get_object_or_404(User, id=user_id)
         if request.user == user:
-            return redirect('home:home-page') 
+            return redirect('home:home-page')
 
         query = request.GET.get('q')
         messages = Message.objects.filter(
             Q(sender=request.user, receiver=user) |
             Q(sender=user, receiver=request.user)
-        ).order_by('-timestamp')
+        ).order_by('timestamp')  # Changed to ascending order
+
         if query:
             messages = messages.filter(text__icontains=query)
 
@@ -41,7 +42,7 @@ class UserMessageView(LoginRequiredMixin, View):
     def post(self, request, user_id):
         user = get_object_or_404(User, id=user_id)
         if request.user == user:
-            return redirect('home:home-page') 
+            return redirect('home:home-page')
 
         form = self.form_class(request.POST, request.FILES)
         if form.is_valid():
@@ -55,7 +56,8 @@ class UserMessageView(LoginRequiredMixin, View):
         messages = Message.objects.filter(
             Q(sender=request.user, receiver=user) |
             Q(sender=user, receiver=request.user)
-        ).order_by('-timestamp')
+        ).order_by('timestamp')  # Changed to ascending order
+
         if query:
             messages = messages.filter(text__icontains=query)
 
@@ -70,7 +72,6 @@ class UserMessageView(LoginRequiredMixin, View):
             'groups': groups,
             'search_query': query
         })
-
 
 class GroupCreateView(LoginRequiredMixin, View):
     template_name = 'message/group_create.html'
@@ -165,7 +166,7 @@ def group_detail(request, pk):
 @login_required
 def group_chat(request, group_id):
     group = get_object_or_404(Group, id=group_id)
-    messages = group.message_set.all()
+    messages = group.message_set.all().order_by('timestamp')
 
     query = request.GET.get('q')
     if query:
